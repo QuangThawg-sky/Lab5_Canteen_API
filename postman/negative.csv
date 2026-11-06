@@ -1,0 +1,7 @@
+﻿case_name,name,category,price,available,expected_status,omit_name
+Missing name,,com,30000,true,422,true
+Negative price,Mon thu,com,-1000,true,422,false
+Price not multiple,Mon thu,com,30500,true,422,false
+Price over limit,Mon thu,com,250000,true,422,false
+Invalid category,Mon thu,lau,30000,true,422,false
+Duplicate name,Cơm gà xối mỡ,com,40000,true,409,false

@@ -1,0 +1,749 @@
+{
+  "info": {
+    "_postman_id": "392c33ea-c263-4447-a788-32c535575e7c",
+    "name": "LAB5 - Canteen CRUD API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "59017663",
+    "_collection_link": "https://go.postman.co/collection/59017663-392c33ea-c263-4447-a788-32c535575e7c?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "CSV Tests",
+      "item": [
+        {
+          "name": "14 - CSV Negative Tests Copy",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const name = pm.iterationData.get(\"name\");\r",
+                  "const omitName = pm.iterationData.get(\"omit_name\");\r",
+                  "\r",
+                  "const payload = {\r",
+                  "    category: pm.iterationData.get(\"category\"),\r",
+                  "    price: Number(pm.iterationData.get(\"price\")),\r",
+                  "    available: pm.iterationData.get(\"available\") === \"true\"\r",
+                  "};\r",
+                  "\r",
+                  "if (omitName !== \"true\" && name) {\r",
+                  "    payload.name = name;\r",
+                  "}\r",
+                  "\r",
+                  "pm.request.body.update({\r",
+                  "    mode: \"raw\",\r",
+                  "    raw: JSON.stringify(payload),\r",
+                  "    options: {\r",
+                  "        raw: {\r",
+                  "            language: \"json\"\r",
+                  "        }\r",
+                  "    }\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const expected = Number(pm.iterationData.get(\"expected_status\"));\r",
+                  "const caseName = pm.iterationData.get(\"case_name\");\r",
+                  "\r",
+                  "pm.test(caseName + \" - Expected HTTP \" + expected, function () {\r",
+                  "    pm.expect(pm.response.code).to.eql(expected);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Mon thu\",\r\n    \"category\": \"com\",\r\n    \"price\": 30000,\r\n    \"available\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/menu-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "menu-items"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01 - GET Menu Items",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response is a JSON array\", function () {\r",
+              "    const data = pm.response.json();\r",
+              "    pm.expect(data).to.be.an(\"array\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response time is under 2 seconds\", function () {\r",
+              "    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/menu-items",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "menu-items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "02 - GET Menu Item By ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response contains correct ID\", function () {\r",
+              "    const data = pm.response.json();\r",
+              "    pm.expect(data).to.have.property(\"id\");\r",
+              "    pm.expect(data.id).to.eql(1);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response contains menu item fields\", function () {\r",
+              "    const data = pm.response.json();\r",
+              "    pm.expect(data).to.have.property(\"name\");\r",
+              "    pm.expect(data).to.have.property(\"category\");\r",
+              "    pm.expect(data).to.have.property(\"price\");\r",
+              "    pm.expect(data).to.have.property(\"available\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/menu-items/1",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "menu-items",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "03 - POST Create Menu Item",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {\r",
+              "    pm.response.to.have.status(201);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response contains item ID\", function () {\r",
+              "    const data = pm.response.json();\r",
+              "    pm.expect(data).to.have.property(\"id\");\r",
+              "    pm.expect(data.name).to.eql(\"Cơm bò LAB5\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Location header exists\", function () {\r",
+              "    pm.expect(pm.response.headers.get(\"Location\")).to.exist;\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Cơm gà xối mỡ\",\r\n    \"category\": \"com\",\r\n    \"price\": 40000,\r\n    \"available\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/menu-items",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "menu-items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "04 - PUT PATCH Update Menu Item",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Price was updated\", function () {\r",
+              "    const data = pm.response.json();\r",
+              "    pm.expect(data.price).to.eql(50000);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Other fields are preserved\", function () {\r",
+              "    const data = pm.response.json();\r",
+              "    pm.expect(data.name).to.eql(\"Cơm bò LAB5 cập nhật\");\r",
+              "    pm.expect(data.category).to.eql(\"com\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Com bo LAB5 PUT\",\r\n  \"category\": \"com\",\r\n  \"price\": 50000,\r\n  \"available\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/menu-items/1",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "menu-items",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "05 - DELETE Menu Item",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 204\", function () {\r",
+              "    pm.response.to.have.status(204);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response body is empty\", function () {\r",
+              "    pm.expect(pm.response.text()).to.eql(\"\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/menu-items/1",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "menu-items",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "06 - GET Missing Item 404",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Error response has detail\", function () {\r\n    const data = pm.response.json();\r\n    pm.expect(data).to.have.property(\"detail\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/menu-items/99999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "menu-items",
+            "99999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "07 - POST Invalid Price 422",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 422\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Validation error response has detail\", function () {\r",
+              "    const data = pm.response.json();\r",
+              "    pm.expect(data).to.have.property(\"detail\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Mon thu\",\r\n  \"category\": \"com\",\r\n  \"price\": -1000,\r\n  \"available\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/menu-items",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "menu-items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "08 - POST Invalid Price Multiple",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 422\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Validation error contains detail\", function () {\r",
+              "    const data = pm.response.json();\r",
+              "    pm.expect(data).to.have.property(\"detail\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Món thử giá lẻ\",\r\n  \"category\": \"com\",\r\n  \"price\": 30500,\r\n  \"available\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/menu-items",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "menu-items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "09 - POST Price Over Limit",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 422\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Validation error contains detail\", function () {\r",
+              "    const data = pm.response.json();\r",
+              "    pm.expect(data).to.have.property(\"detail\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Món thử giá quá cao\",\r\n  \"category\": \"com\",\r\n  \"price\": 250000,\r\n  \"available\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/menu-items",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "menu-items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "10 - POST Invalid Category",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 422\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Validation error contains detail\", function () {\r",
+              "    const data = pm.response.json();\r",
+              "    pm.expect(data).to.have.property(\"detail\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Mon thu\",\n  \"category\": \"lau\",\n  \"price\": 30000,\n  \"available\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/menu-items",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "menu-items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "11 - POST Missing Name",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 422\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Missing name is rejected\", function () {\r",
+              "    pm.expect(pm.response.json()).to.have.property(\"detail\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"category\": \"com\",\r\n  \"price\": 30000,\r\n  \"available\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/menu-items",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "menu-items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "12 - POST Duplicate Name",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 409\", function () {\r",
+              "    pm.response.to.have.status(409);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Duplicate name is rejected\", function () {\r",
+              "    pm.expect(pm.response.json().detail).to.include(\"đã tồn tại\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Cơm gà xối mỡ\",\r\n  \"category\": \"com\",\r\n  \"price\": 40000,\r\n  \"available\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/menu-items",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "menu-items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "13 - POST Name Too Short",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 422\", function () {\r",
+              "    pm.response.to.have.status(422);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"A\",\r\n  \"category\": \"com\",\r\n  \"price\": 30000,\r\n  \"available\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/menu-items",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "menu-items"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "14 - CSV Negative Tests",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const name = pm.iterationData.get(\"name\");\r",
+              "const omitName = pm.iterationData.get(\"omit_name\");\r",
+              "\r",
+              "const payload = {\r",
+              "    category: pm.iterationData.get(\"category\"),\r",
+              "    price: Number(pm.iterationData.get(\"price\")),\r",
+              "    available: pm.iterationData.get(\"available\") === \"true\"\r",
+              "};\r",
+              "\r",
+              "if (omitName !== \"true\" && name) {\r",
+              "    payload.name = name;\r",
+              "}\r",
+              "\r",
+              "pm.variables.set(\"negativePayload\", JSON.stringify(payload));\r",
+              "pm.request.body.update(JSON.stringify(payload));"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const expected = Number(pm.iterationData.get(\"expected_status\"));\r",
+              "const caseName = pm.iterationData.get(\"case_name\");\r",
+              "\r",
+              "pm.test(caseName + \" - Expected HTTP \" + expected, function () {\r",
+              "    pm.expect(pm.response.code).to.eql(expected);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{{negativePayload}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/menu-items",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "menu-items"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
